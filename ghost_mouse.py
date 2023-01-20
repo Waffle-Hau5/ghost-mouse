@@ -46,7 +46,7 @@ def move_mouse(image_file, click_at_location=None, grayscale=False, confidence=N
         # Added a random deviation to the x and y coordinates...
         x += random.uniform(-max_deviation, max_deviation)
         y += random.uniform(-max_deviation, max_deviation)
-        pyautogui.moveTo(x, y)
+        pyautogui.move(x, y)
 
         # Added a random "human-like" pauses for the botto.
         # Currently, 40% chance quick pause, 2% long pause... 
