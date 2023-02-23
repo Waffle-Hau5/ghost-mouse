@@ -1,67 +1,50 @@
 import pyautogui
-import math
 import random
 import time
-from PIL import Image
+import math
 
-# Written in python 3.8, I intend on fleshing this out a bit, making this a bot to mine gold in a "time-sink" game.
-# Main function for mouse's movement, may make different variations of movement to throw the "bot detection" off.
 
-def move_mouse(image_file, click_at_location=None, grayscale=False, confidence=None):
-    # I'm not certain I need to use Pillow? but here it is.
-    image = Image.open(image_file)
-    location = pyautogui.locateOnScreen(image, grayscale=grayscale, confidence=confidence)
+# Just some functions at the moment...
 
-    # If the image_file is found, unpack the x and y coordinates of the top-left corner
-    # and the width and height of the image...
+
+def sleeptime(pause):
+    if pause >= 996:
+        sleeper = random.uniform(10, 20)
+        print(f"Script pause: [LARGE], sleeping {sleeper} seconds...")
+        time.sleep(sleeper)
+    if pause >= 700:
+        sleeper = (random.uniform(0.1, 2))
+        print(f"Script pause: [SMALL], sleeping {sleeper} seconds...")
+        time.sleep(sleeper)
+
+
+def move_mouse(image_file, confidence=None, click=None):
+    start_x, start_y = pyautogui.position()
+    location = pyautogui.locateOnScreen(image_file, confidence=confidence)
+    if location is None:
+        print("Image not found on screen.")
+        return
+
     x, y, image_width, image_height = location
 
-    # Instead of clicking on the corner of the image provided, it will randomly choose a location
-    # within the image bounds, somewhat like a human would.
+    # Randomly select a destination within provided image height and width.
+    dest_x = x + random.uniform(0, image_width)
+    dest_y = y + random.uniform(0, image_height)
 
-    x += random.uniform(0, image_width)
-    y += random.uniform(0, image_height)
-
-    # Gets the current position of the mouse...
-    start_x, start_y = pyautogui.position()
-
-    # Calculate the distance between the starting and ending positions.
-    distance = math.sqrt((x - start_x) ** 2 + (y - start_y) ** 2)
-
-    # Setting random number of steps to take.
-    randomsteps = random.randint(1, 30)
-    steps = int(distance / randomsteps)
-    angle = math.atan2(y - start_y, x - start_x)
-
-    # Set your max random deviation "angle" during mouse movement here..
-    max_deviation = 10
-
-    # Here's the goods:
-    for i in range(steps):
-
-        # Calculate the x and y coordinates with an angle
-        x = start_x + i * 10 * math.cos(angle)
-        y = start_y + i * 10 * math.sin(angle)
-
-        # Added a random deviation to the x and y coordinates...
-        x += random.uniform(-max_deviation, max_deviation)
-        y += random.uniform(-max_deviation, max_deviation)
-        pyautogui.move(x, y)
-
-        # Added a random "human-like" pauses for the botto.
-        # Currently, 40% chance quick pause, 2% long pause... 
-        pause = random.randint(1, 100)
-        if pause > 60:
-            time.sleep(random.uniform(0.1, 0.5))
-        elif pause > 98:
-            time.sleep(random.uniform(10, 30))
-
-    if click_at_location:
-        pyautogui.doubleClick((x, y))
+    # quicc maths, cuz curves are nice..
+    angle = math.atan2(dest_y - y, dest_x - x)
+    x += math.cos(angle)
+    y += math.sin(angle)
+    movetime = random.uniform(0.2, 0.4)
+    print(f"MoveTo duration: {movetime}")
+    pyautogui.moveTo(dest_x, dest_y, duration=movetime)
+    # mouse pauses for up to 3 times per movement.
+    for i in range(3):
+        pause = random.randint(1, 1000)
+        sleeptime(pause)
+    if click:
+        pyautogui.doubleClick()
+        return
 
 
-# Execute function as such; greyscale is set as None but could be useful, no need to define.
-# Confidence goes from a scale of 0-1 in floats as you'll see below.
-# Obviously you can just call the function like move_mouse("click.png", True, 0.5)
-# But for demonstration:
-move_mouse(image_file="click.png", click_at_location=True, confidence=0.5)
+move_mouse("images/click.png", 0.8, True)
